@@ -1,0 +1,32 @@
+{{define "not_found"}}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Page Not Found · ASCII Art Web</title>
+  <link rel="stylesheet" href="/static/style.css">
+  <script src="/static/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="masthead glass">
+      <a class="wordmark" href="/" aria-label="ASCII Art Web home">
+        <span>ascii</span><span class="wordmark-accent">-art</span><span class="cursor" aria-hidden="true"></span>
+      </a>
+      {{template "theme_control" .}}
+    </header>
+
+    <main class="not-found-stage">
+      <section class="not-found-card glass" aria-labelledby="not-found-title">
+        <p class="not-found-code">ERROR 404</p>
+        <h1 id="not-found-title" class="not-found-title">Page not found</h1>
+        <p class="not-found-message">The page you requested does not exist.</p>
+        <a class="button button-primary" href="/">Back to generator</a>
+      </section>
+    </main>
+
+    <footer class="colophon">ASCII Art Web</footer>
+  </div>
+</body>
+</html>
+{{end}}

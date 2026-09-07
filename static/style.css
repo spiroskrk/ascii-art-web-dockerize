@@ -1,0 +1,721 @@
+/* ================= LIQUID GLASS =================
+   Champagne Mist #EEE0CB · Khaki Beige #BAA898
+   Muted Teal #839788 · Pale Sky #BFD7EA · Black #000000
+
+   Soft colour fields drift behind every surface, and each panel is a
+   translucent slab that refracts them. Pale Sky is the only cool note and
+   the single signal colour. The output stays a dark slab so the ASCII art
+   keeps its contrast.
+   ================================================ */
+:root {
+  --champagne: #EEE0CB;
+  --khaki: #BAA898;
+  --teal: #839788;
+  --sky: #BFD7EA;
+
+  --text: #14110C;
+  --muted: #4B5750;
+  --faint: #7C8A80;
+  --line: rgba(255, 255, 255, 0.55);
+  --hair: rgba(20, 17, 12, 0.14);
+  --accent: #BFD7EA;
+  --accent-ink: #0A0D0F;
+  --focus: #14110C;
+
+  --glass: linear-gradient(158deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.34));
+  --glass-solid: #F4EEE3;
+  --blur: blur(22px) saturate(165%);
+  --lift:
+    0 1px 0 rgba(255, 255, 255, 0.75) inset,
+    0 -1px 0 rgba(255, 255, 255, 0.20) inset,
+    0 20px 44px -20px rgba(28, 24, 17, 0.42);
+
+  --screen-ink: #EEE0CB;
+  --screen-faint: #6B7A70;
+  --ease: cubic-bezier(0.25, 0.7, 0.3, 1);
+}
+
+/* C7 swaps variables instead of component styles, keeping layout unchanged. */
+html[data-theme="dark"] {
+  --text: #EEE0CB;
+  --muted: #B2A493;
+  --faint: #74827A;
+  --line: rgba(255, 255, 255, 0.14);
+  --hair: rgba(255, 255, 255, 0.12);
+  --accent: #BFD7EA;
+  --accent-ink: #0A0D0F;
+  --focus: #BFD7EA;
+
+  --glass: linear-gradient(158deg, rgba(28, 34, 32, 0.62), rgba(12, 16, 15, 0.44));
+  --glass-solid: #161B19;
+  --lift:
+    0 1px 0 rgba(255, 255, 255, 0.10) inset,
+    0 -1px 0 rgba(0, 0, 0, 0.30) inset,
+    0 22px 48px -22px rgba(0, 0, 0, 0.7);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+::selection {
+  background: var(--sky);
+  color: #0A0D0F;
+}
+
+html {
+  min-width: 20rem;
+  background: var(--champagne);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+}
+
+html[data-theme="dark"] {
+  background: #0A0D0C;
+}
+
+body {
+  min-height: 100vh;
+  margin: 0;
+  padding: 1.5rem 1.5rem 0;
+  background: transparent;
+}
+
+/* The light behind the glass: without something to refract, a translucent
+   panel is just blurred white. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -25%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(38% 40% at 16% 20%, rgba(191, 215, 234, 0.95), transparent 68%),
+    radial-gradient(34% 36% at 84% 14%, rgba(186, 168, 152, 0.85), transparent 70%),
+    radial-gradient(44% 46% at 74% 84%, rgba(131, 151, 136, 0.72), transparent 70%),
+    radial-gradient(40% 42% at 22% 88%, rgba(238, 224, 203, 0.95), transparent 70%);
+  filter: blur(26px);
+  animation: drift 30s var(--ease) infinite alternate;
+}
+
+html[data-theme="dark"] body::before {
+  opacity: 0.42;
+}
+
+@keyframes drift {
+  to {
+    transform: translate3d(2.5%, -2%, 0) scale(1.07);
+  }
+}
+
+button,
+input,
+select,
+textarea {
+  color: inherit;
+  font: inherit;
+}
+
+/* ---------- glass ---------- */
+
+.glass {
+  background: var(--glass);
+  -webkit-backdrop-filter: var(--blur);
+  backdrop-filter: var(--blur);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: var(--lift);
+}
+
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  .glass {
+    background: var(--glass-solid);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .glass {
+    background: var(--glass-solid);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  body::before {
+    opacity: 0.25;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before {
+    animation: none;
+  }
+
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}
+
+/* ---------- layout ---------- */
+
+.shell {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  width: min(100%, 46rem);
+  min-height: calc(100vh - 1.5rem);
+  margin: 0 auto;
+}
+
+.masthead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.9rem 1.5rem;
+}
+
+.wordmark {
+  color: var(--muted);
+  font-size: 1.2rem;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+  user-select: none;
+}
+
+.wordmark-accent {
+  color: var(--text);
+}
+
+.cursor {
+  display: inline-block;
+  width: 0.5em;
+  height: 1em;
+  margin-left: 2px;
+  border-radius: 1px;
+  background: var(--text);
+  vertical-align: text-bottom;
+  animation: blink 1.1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor {
+    animation: none;
+  }
+}
+
+.stage {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.colophon {
+  padding: 1rem 1.5rem 1.75rem;
+  color: var(--muted);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-align: center;
+}
+
+/* Package A: input, generation action, and output. */
+
+.generation-form {
+  padding: 2rem 2rem 1.75rem;
+}
+
+.control-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.75rem;
+}
+
+.text-field {
+  grid-column: 1 / -1;
+}
+
+.control {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.field-label {
+  display: block;
+  margin-bottom: 0.75rem;
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.text-input {
+  display: block;
+  width: 100%;
+  min-height: 4.75rem;
+  padding: 0.15rem 0 0.85rem;
+  border: 0;
+  border-bottom: 1px solid var(--hair);
+  background: transparent;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  resize: vertical;
+  transition: border-color 0.2s var(--ease);
+}
+
+.text-input::placeholder {
+  color: var(--faint);
+}
+
+.text-input:focus {
+  outline: none;
+  border-bottom-color: var(--text);
+}
+
+/* ---------- options ---------- */
+
+/* Options are styled like the action buttons: an unselected pill reads as a
+   quiet Clear, a selected one as a filled Generate. */
+.option-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.45rem;
+}
+
+.option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0.6rem 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
+  color: var(--muted);
+  font-size: 0.82rem;
+  cursor: pointer;
+  user-select: none;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition:
+    background 0.18s var(--ease),
+    border-color 0.16s var(--ease),
+    color 0.15s var(--ease);
+}
+
+.option:hover {
+  border-color: rgba(255, 255, 255, 0.45);
+  background: linear-gradient(158deg, rgba(172, 190, 176, 0.6), rgba(148, 168, 153, 0.42));
+  color: #0F1310;
+}
+
+/* The real control stays in the DOM for keyboard and form semantics; only its
+   default appearance is replaced by the pill. */
+.option input {
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+}
+
+/* Kept in the markup for other option treatments; unused by the pill style. */
+.tick {
+  display: none;
+}
+
+html[data-theme="dark"] .option {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+html[data-theme="dark"] .option:hover {
+  background: linear-gradient(158deg, rgba(172, 190, 176, 0.7), rgba(148, 168, 153, 0.5));
+  color: #0F1310;
+}
+
+.option:has(input:checked) {
+  border-color: rgba(255, 255, 255, 0.5);
+  background: linear-gradient(158deg, rgba(172, 190, 176, 0.95), rgba(148, 168, 153, 0.75));
+  color: #0F1310;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 8px 18px -10px rgba(90, 104, 92, 0.6);
+}
+
+.option:has(input:focus-visible) {
+  outline: 1.5px solid var(--focus);
+  outline-offset: 2px;
+}
+
+
+/* ---------- colour row ---------- */
+
+.color-row {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-top: 0.9rem;
+}
+
+input[type="color"] {
+  width: 1.4rem;
+  height: 1.4rem;
+  flex-shrink: 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: none;
+  overflow: hidden;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.6) inset,
+    0 2px 6px -2px rgba(0, 0, 0, 0.4);
+  transition: transform 0.12s var(--ease);
+}
+
+input[type="color"]:hover {
+  transform: scale(1.12);
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: 50%;
+}
+
+input[type="color"]:focus-visible {
+  outline: 1.5px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.sub-input {
+  width: 100%;
+  min-width: 0;
+  padding: 0.15rem 0 0.4rem;
+  border: 0;
+  border-bottom: 1px solid var(--hair);
+  background: transparent;
+  font-size: 0.8rem;
+  transition: border-color 0.2s var(--ease);
+}
+
+.sub-input::placeholder {
+  color: var(--faint);
+}
+
+.sub-input:focus {
+  outline: none;
+  border-bottom-color: var(--text);
+}
+
+/* ---------- actions ---------- */
+
+.action-dock {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.75rem 1.75rem;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  transition:
+    background 0.18s var(--ease),
+    color 0.15s var(--ease),
+    transform 0.1s var(--ease),
+    box-shadow 0.18s var(--ease);
+}
+
+.button:active {
+  transform: translateY(1px) scale(0.985);
+}
+
+.button:focus-visible {
+  outline: 1.5px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.button-primary {
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: linear-gradient(158deg, rgba(172, 190, 176, 0.95), rgba(148, 168, 153, 0.75));
+  color: #0F1310;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.7) inset,
+    0 10px 24px -12px rgba(90, 104, 92, 0.7);
+}
+
+.button-primary:hover {
+  background: linear-gradient(158deg, rgba(186, 202, 189, 1), rgba(160, 180, 165, 0.88));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.8) inset,
+    0 14px 30px -12px rgba(90, 104, 92, 0.85);
+}
+
+.button-ghost {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.3);
+  color: var(--muted);
+}
+
+.button-ghost:hover {
+  background: rgba(255, 255, 255, 0.5);
+  color: var(--text);
+}
+
+html[data-theme="dark"] .button-ghost {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+html[data-theme="dark"] .button-ghost:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+/* ---------- output: a dark glass slab with a Pale Sky bar ---------- */
+
+.output-panel {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 24px;
+  background: linear-gradient(158deg, rgba(76, 72, 58, 0.92), rgba(66, 63, 50, 0.86));
+  overflow: hidden;
+  -webkit-backdrop-filter: blur(26px) saturate(150%);
+  backdrop-filter: blur(26px) saturate(150%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.16) inset,
+    0 24px 50px -22px rgba(0, 0, 0, 0.65);
+}
+
+.output-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 2.75rem;
+  padding: 0 1.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  background: linear-gradient(158deg, rgba(178, 195, 182, 0.92), rgba(155, 175, 160, 0.72));
+  color: #0A0D0F;
+  font-size: 0.66rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+.output-meta {
+  letter-spacing: 0.06em;
+  text-transform: none;
+  opacity: 0.6;
+}
+
+/* The rendered snapshot keeps the width it was generated at: it scrolls
+   sideways rather than re-wrapping, so the ASCII art is never distorted. */
+.terminal-body {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.terminal-output {
+  display: block;
+  margin: 0;
+  min-height: 9rem;
+  padding: 2rem 1.75rem;
+  color: #FBF6EC;
+  font-family: inherit;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  white-space: pre;
+  text-shadow: 0 0 14px rgba(238, 224, 203, 0.16);
+}
+
+/* Package B: alignment, errors, clear, and download. */
+
+.form-error {
+  margin: 0;
+  padding: 1rem 1.4rem;
+  border-left: 3px solid var(--text);
+  color: var(--text);
+  font-size: 0.82rem;
+}
+
+.not-found-stage {
+  display: grid;
+  flex: 1;
+  place-items: center;
+}
+
+.not-found-card {
+  width: min(100%, 32rem);
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.not-found-code {
+  margin: 0 0 0.75rem;
+  color: var(--muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+}
+
+.not-found-title {
+  margin: 0;
+  font-size: clamp(1.7rem, 5vw, 2.5rem);
+}
+
+.not-found-message {
+  margin: 1rem auto 1.75rem;
+  color: var(--muted);
+  font-size: 0.85rem;
+  line-height: 1.6;
+}
+
+.download-form {
+  display: inline-flex;
+}
+
+/* Package C: color, width measurement, assets, and optional theme. */
+
+.theme-control {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.theme-control-label {
+  color: var(--muted);
+  font-size: 0.66rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.theme-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  width: 3.4rem;
+  height: 1.6rem;
+  padding: 0 0.45rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  cursor: pointer;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: background 0.2s var(--ease);
+}
+
+.theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.theme-toggle:focus-visible {
+  outline: 1.5px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.theme-toggle-status {
+  color: var(--muted);
+  font-size: 0.55rem;
+  letter-spacing: 0.1em;
+}
+
+.theme-toggle-thumb {
+  position: absolute;
+  right: 0.2rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 6px -1px rgba(0, 0, 0, 0.45);
+  transition: transform 0.22s var(--ease);
+}
+
+/* The thumb sits on the right at rest and slides left when the theme is on,
+   so the ON label stays readable beside it. */
+.theme-toggle[aria-pressed="true"] {
+  background: linear-gradient(158deg, rgba(178, 195, 182, 0.9), rgba(155, 175, 160, 0.65));
+}
+
+.theme-toggle[aria-pressed="true"] .theme-toggle-status {
+  color: #0A0D0F;
+}
+
+.theme-toggle[aria-pressed="true"] .theme-toggle-thumb {
+  transform: translateX(-1.85rem);
+}
+
+html[data-theme="dark"] .theme-toggle {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+html[data-theme="dark"] .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* ---------- narrow screens ---------- */
+
+@media (max-width: 40rem) {
+  body {
+    padding: 1rem 1rem 0;
+  }
+
+  .shell {
+    min-height: calc(100vh - 1rem);
+  }
+
+  .control-grid {
+    grid-template-columns: 1fr;
+    gap: 1.4rem;
+  }
+
+  .generation-form {
+    padding: 1.5rem 1.4rem 1.4rem;
+  }
+
+  .action-dock {
+    justify-content: stretch;
+  }
+
+  .action-dock .button,
+  .download-form,
+  .download-form .button {
+    flex: 1;
+    text-align: center;
+  }
+
+  .terminal-output {
+    padding: 1.4rem 1.1rem;
+    font-size: 0.62rem;
+  }
+}
