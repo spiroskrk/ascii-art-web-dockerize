@@ -15,7 +15,7 @@ FROM debian:bookworm-slim AS runtime
 
 LABEL org.opencontainers.image.title="ASCII Art Web" \
       org.opencontainers.image.description="A containerized Go web application that renders ASCII art" \
-      org.opencontainers.image.authors="Aris Kasapidis, Spiros, Kostis"
+      org.opencontainers.image.authors="Aris Kasapidis, Spiros Kourouklis, Kostis Sfakianakis"
 
 RUN groupadd --system app && \
     useradd --system --gid app --home-dir /app --no-create-home app
