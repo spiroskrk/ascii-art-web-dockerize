@@ -76,6 +76,59 @@ immediately at startup with a clear message rather than serving a broken page.
 Stop it with `Ctrl+C`. Shutdown is graceful: in-flight requests get up to five
 seconds to finish before the process exits.
 
+### Run with Docker
+
+Build the production image from the repository root:
+
+```bash
+docker image build -f Dockerfile -t ascii-art-web-docker .
+```
+
+Start the container and publish the web server on port 8080:
+
+```bash
+docker container run \
+  --detach \
+  --name dockerize \
+  --publish 8080:8080 \
+  ascii-art-web-docker
+```
+
+Open `http://localhost:8080`, then inspect the container and its logs with:
+
+```bash
+docker ps -a
+docker logs dockerize
+docker exec -it dockerize /bin/bash
+```
+
+Inside the container, `/app` contains only the compiled `server` and the
+`banners/`, `templates/`, and `static/` runtime directories. The server runs as
+the unprivileged `app` user. Stop and remove the container with:
+
+```bash
+docker stop dockerize
+docker rm dockerize
+```
+
+The convenience script builds the image, replaces an existing container named
+`dockerize`, and starts the new container:
+
+```bash
+./build.sh
+```
+
+The script accepts optional `IMAGE_NAME`, `CONTAINER_NAME`, and `HOST_PORT`
+environment variables. If the local Docker daemon requires elevated access,
+run Docker commands—or the script—with the privileges configured for that
+machine.
+
+The Dockerfile uses a multi-stage build. Tests and compilation run in the Go
+builder, while the final Debian image contains no Go toolchain or source code.
+OCI labels provide the image title, description, and authors. The final image
+documents port 8080, starts the server directly so it receives termination
+signals, and retains `/bin/bash` for audit-time filesystem inspection.
+
 ### Using the page
 
 1. Type the text to render. Press Enter for a new line; a literal `\n` typed as
@@ -344,6 +397,9 @@ persistence belongs to whatever runs it.
 
 ```text
 ascii-art-web/
+|-- Dockerfile               multi-stage production image
+|-- .dockerignore            files excluded from the build context
+|-- build.sh                 build-and-run convenience script
 |-- main.go                  startup, timeouts, graceful shutdown
 |-- banners/                 standard.txt, shadow.txt, thinkertoy.txt
 |-- templates/
